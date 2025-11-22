@@ -37,7 +37,7 @@ Ikuti langkah-langkah berikut untuk menjalankan project ini di lokal:
 Download source code ke komputermu:
 
 ```bash
-git clone [https://github.com/KP-Benskuy/helpdesk-frontend.git](https://github.com/KP-Benskuy/helpdesk-frontend.git)
+git clone https://github.com/KP-Benskuy/helpdesk-frontend.git
 ```
 ```
 cd helpdesk-frontend
