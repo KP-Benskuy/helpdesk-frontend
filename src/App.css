@@ -1,0 +1,197 @@
+/* Reset dasar agar tidak ada jarak aneh di pinggir layar */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #4FC3F7; /* Warna Background Biru Langit */
+}
+
+/* Container Utama: Ini kuncinya agar ke tengah */
+.app-container {
+  display: flex;            /* Aktifkan mode fleksibel */
+  justify-content: center;  /* Tengahkan secara Horizontal (Kanan-Kiri) */
+  align-items: center;      /* Tengahkan secara Vertikal (Atas-Bawah) */
+  min-height: 100vh;        /* Tinggi minimal setinggi layar browser */
+  width: 100%;              /* Lebar container memenuhi layar */
+  padding: 20px;            /* Jarak aman untuk tampilan HP */
+}
+
+/* Kartu Login/Register */
+.login-card {
+  background-color: rgba(255, 255, 255, 0.25); /* Putih Transparan (Glass Effect) */
+  backdrop-filter: blur(5px);                  /* Efek blur di belakang kaca */
+  padding: 40px 30px;
+  
+  /* RESPONSIVE: Lebar max 400px, tapi di HP dia akan jadi 90% layar */
+  width: 100%;
+  max-width: 400px; 
+  
+  border-radius: 15px;      /* Sudut membulat */
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* Bayangan halus */
+  text-align: center;
+  position: relative;       /* Agar logo bisa diatur posisinya relatif thd kartu ini */
+  margin-top: 30px;         /* Jarak sedikit dr atas agar logo gak kepotong */
+}
+
+/* Logo Universitas */
+.university-logo {
+  width: 90px;
+  height: auto;
+  
+  /* Membuat logo 'nangkring' di atas kartu */
+  position: absolute;
+  top: -45px;               /* Naikkan ke atas */
+  left: 50%;                /* Taruh di tengah */
+  transform: translateX(-50%); /* Koreksi posisi agar pas di tengah */
+  
+  /* Efek bayangan logo */
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+}
+
+/* Judul */
+.title {
+  margin-top: 35px; /* Beri jarak karena ada logo di atas */
+  color: #003366;   /* Biru Tua agar kontras */
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-style: italic;
+  margin-bottom: 25px;
+}
+
+/* Input Form */
+.input-group {
+  margin-bottom: 15px;
+}
+
+.login-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ccc; /* Garis pinggir halus */
+  border-radius: 8px;     /* Sudut input membulat */
+  font-size: 1rem;
+  outline: none;
+  box-sizing: border-box; /* Agar padding tidak merusak lebar */
+}
+
+.login-input:focus {
+  border-color: #2962FF;  /* Warna garis berubah saat diketik */
+  box-shadow: 0 0 5px rgba(41, 98, 255, 0.3);
+}
+
+/* --- TOMBOL & HOVER EFFECT --- */
+
+/* Style Dasar Tombol */
+button {
+  cursor: pointer;
+  transition: all 0.3s ease; /* Animasi halus untuk hover */
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+/* Tombol Hijau */
+.btn-green {
+  width: 100%;
+  padding: 12px;
+  background-color: #00C853; /* Hijau Segar */
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1rem;
+}
+
+/* HOVER EFFECT: Hanya ganti warna, TIDAK membesar */
+.btn-green:hover {
+  background-color: #009624; /* Saya ubah jadi Hijau Lebih Gelap biar kontras */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* Bayangan sedikit lebih tegas */
+}
+
+/* Efek saat mouse diarahkan ke kolom input (Hover) */
+.login-input:hover {
+  border-color: #2962FF;  /* Garis jadi biru */
+  box-shadow: 0 0 5px rgba(41, 98, 255, 0.3); /* Ada efek bersinar (glow) */
+}
+
+/* Tombol Biru */
+.btn-blue {
+  width: 100%;
+  padding: 12px;
+  background-color: #2962FF;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  margin-top: 10px;
+}
+
+.btn-blue:hover {
+  background-color: #448AFF;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+/* Link (Forgot Pass & Sign Up) */
+.links-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+
+.subtitle {
+  margin-top: 40px;
+  margin-bottom: 20px;
+  color: #333;
+}
+/* --- TAMBAHAN UNTUK LINK --- */
+
+/* Style Dasar Link */
+.link-forgot, .link-signup {
+  text-decoration: none;      /* Hilangkan garis bawah default */
+  font-weight: 500;           /* Ketebalan huruf sedang */
+  transition: all 0.3s ease;  /* Animasi halus */
+  display: inline-block;      /* Agar bisa di-scale (zoom) */
+}
+
+/* 1. FORGOT PASSWORD (MERAH) */
+.link-forgot {
+  color: #FF1744; /* Merah terang */
+}
+
+/* Efek Hover Forgot Password */
+.link-forgot:hover {
+  color: #D50000;             /* Merah lebih gelap saat hover */
+  transform: scale(1.1);      /* Membesar sedikit */
+  text-decoration: underline; /* Muncul garis bawah */
+}
+
+/* 2. SIGN UP (HITAM) */
+.link-signup {
+  color: #333;    /* Hitam standar */
+  font-size: 1.1rem; /* Sedikit lebih besar dari forgot pass */
+  font-weight: bold;
+}
+
+/* Efek Hover Sign Up */
+.link-signup:hover {
+  color: #000;                /* Hitam pekat saat hover */
+  transform: scale(1.1);      /* Membesar sedikit */
+  text-decoration: underline; /* Muncul garis bawah */
+}
+.link-signin-nav {
+  color: #333;                /* Hitam agak abu sedikit (biar pas hover kerasa bedanya) */
+  text-decoration: none;      /* Hilangkan garis bawah */
+  font-size: 1.2em;           /* Ukuran font */
+  font-weight: bold;          /* Tebal */
+  transition: all 0.3s ease;  /* Animasi halus */
+  display: inline-block;      /* PENTING: Agar teks bisa membesar (scale) */
+}
+
+/* Efek Hover: Membesar & Hitam Pekat */
+.link-signin-nav:hover {
+  color: #000000;             /* Hitam Pekat */
+  transform: scale(1.15);     /* Membesar 15% */
+}

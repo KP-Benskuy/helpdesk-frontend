@@ -1,0 +1,126 @@
+/* Container utama profile agar background biru memenuhi area */
+.profile-wrapper {
+    background-color: #4FC3F7; /* Biru Langit */
+    padding: 40px;
+    border-radius: 10px;
+    min-height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Mulai dari atas */
+    gap: 30px; /* Jarak antar kartu */
+    flex-wrap: wrap; /* Agar responsif di layar kecil */
+  }
+  
+  /* --- KARTU PROFIL (KIRI) --- */
+  .profile-card {
+    background: white;
+    width: 350px;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Tengah secara horizontal */
+  }
+  
+  .edit-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #333;
+  }
+  
+  .profile-avatar-placeholder {
+    width: 120px;
+    height: 120px;
+    background-color: #ccc;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+    font-size: 4rem;
+    color: #fff;
+  }
+  
+  .profile-details {
+    width: 100%;
+    text-align: left;
+  }
+  
+  .profile-details p {
+    margin: 10px 0;
+    font-weight: 500;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+  }
+  
+  .label-detail {
+    font-weight: bold;
+    color: #555;
+    margin-right: 10px;
+  }
+  
+  /* --- KARTU FEEDBACK (KANAN) --- */
+  .feedback-card {
+    background: white;
+    width: 350px;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  
+  .feedback-title {
+    font-family: 'Courier New', Courier, monospace; /* Font mirip mesin ketik sesuai gambar */
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+  
+  .feedback-textarea {
+    width: 100%;
+    height: 80px;
+    background-color: #999; /* Abu-abu gelap sesuai gambar */
+    border: none;
+    padding: 10px;
+    color: white;
+    resize: none;
+    margin-bottom: 15px;
+  }
+  
+  .feedback-textarea::placeholder {
+    color: #ddd;
+  }
+  
+  .star-container {
+    margin-bottom: 20px;
+    color: #ccc; /* Warna bintang mati */
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  
+  .star-active {
+    color: #aaa; /* Warna bintang nyala (abu terang di mockup) */
+  }
+  
+  .btn-feedback {
+    background-color: #00B0FF; /* Biru Tombol */
+    color: black;
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    border: none;
+    padding: 10px 20px;
+    width: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .btn-feedback:hover {
+    background-color: #0091EA;
+    color: white;
+  }

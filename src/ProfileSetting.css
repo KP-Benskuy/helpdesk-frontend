@@ -1,0 +1,86 @@
+/* Container Form */
+.setting-container {
+    background-color: white; /* Atau transparan jika ikut background main */
+    padding: 20px 0;
+    max-width: 900px;
+  }
+  
+  /* Judul Tab "Edit Account" */
+  .tab-header {
+    background-color: #00B0FF; /* Cyan */
+    color: black;
+    padding: 10px 20px;
+    display: inline-block;
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    margin-bottom: 5px; /* Jarak dikit ke form */
+  }
+  
+  /* Baris Form */
+  .form-row {
+    display: flex;
+    margin-bottom: 5px; /* Jarak antar baris putih */
+  }
+  
+  /* Label (Kiri - Abu-abu) */
+  .form-label {
+    width: 250px; /* Lebar tetap untuk label */
+    background-color: #9E9E9E; /* Abu-abu gelap */
+    color: white;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    border-right: 2px solid white; /* Garis pemisah */
+  }
+  
+  /* Input Area (Kanan - Putih/Garis) */
+  .form-input-area {
+    flex: 1;
+    background-color: white;
+    border-bottom: 3px solid #eee; /* Garis bawah tebal seperti rak */
+    padding: 5px 10px;
+  }
+  
+  /* Input Field Asli */
+  .form-input {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    background: transparent;
+  }
+  
+  /* Tombol Update (Bawah) */
+  .btn-update {
+    background-color: #00B0FF; /* Cyan */
+    color: black;
+    border: none;
+    padding: 12px 30px;
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    cursor: pointer;
+    margin-top: 15px;
+    border-radius: 5px;
+  }
+  
+  .btn-update:hover {
+    background-color: #0091EA;
+    color: white;
+  }
+  
+  /* Area kosong abu-abu di sebelah tombol (sesuai mockup) */
+  .action-row {
+    display: flex;
+  }
+  .action-left {
+    width: 250px; /* Sama dengan lebar label */
+    padding-top: 10px;
+  }
+  .action-right {
+    flex: 1;
+    background-color: #ccc; /* Area abu-abu di kanan tombol */
+    height: 50px;
+    margin-top: 15px;
+  }

@@ -1,0 +1,77 @@
+/* Container Setting */
+.admin-setting-container {
+    max-width: 800px;
+    padding-bottom: 50px;
+  }
+  
+  /* Grup Setting (General, Connect To, dll) */
+  .setting-group {
+    margin-bottom: 20px;
+  }
+  
+  /* Header Biru (Accordion) */
+  .group-header {
+    background-color: #00B0FF; /* Cyan Biru */
+    color: black;
+    padding: 10px 20px;
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  /* Baris Isi (Abu-abu) */
+  .group-row {
+    background-color: #E0E0E0; /* Abu-abu */
+    padding: 12px 20px;
+    border-bottom: 2px solid white; /* Garis pemisah putih */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 500;
+  }
+  
+  /* Custom Checkbox (Kotak Hitam Sederhana) */
+  .custom-checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: black; /* Warna centang hitam */
+    cursor: pointer;
+  }
+  
+  /* Toggle Bahasa (BM | BI) */
+  .lang-toggle {
+    display: flex;
+    border: 2px solid black;
+    border-radius: 5px;
+    overflow: hidden;
+    font-size: 0.8rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .lang-opt {
+    padding: 2px 5px;
+  }
+  
+  .lang-opt.active {
+    background-color: black;
+    color: white;
+  }
+  
+  .lang-opt.inactive {
+    background-color: white;
+    color: black;
+  }
+  
+  /* Dropdown Level Authority */
+  .auth-dropdown {
+    padding: 5px;
+    background-color: #999;
+    border: none;
+    color: white;
+    cursor: pointer;
+  }

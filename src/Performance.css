@@ -1,0 +1,138 @@
+/* Layout Utama: Membagi Kiri (Profil+Stats) dan Kanan (Tim Lain) */
+.performance-layout {
+    display: flex;
+    gap: 40px; /* Jarak antar kolom */
+    align-items: flex-start;
+    flex-wrap: wrap; /* Agar aman di layar kecil */
+  }
+  
+  /* --- KOLOM KIRI (Profil Sendiri) --- */
+  .perf-left-column {
+    flex: 1.2; /* Sedikit lebih lebar */
+    min-width: 300px;
+  }
+  
+  /* Kartu Profil Atas */
+  .perf-profile-card {
+    background-color: white; /* Atau transparan kalau mau ikut background */
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .perf-avatar-large {
+    width: 100px;
+    height: 100px;
+    background-color: #D9D9D9; /* Abu-abu placeholder avatar */
+    border-radius: 15px; /* Kotak dengan sudut tumpul sesuai gambar */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+    color: black;
+  }
+  
+  .perf-info-box {
+    background-color: #E0E0E0; /* Abu-abu terang */
+    padding: 15px 20px;
+    border-radius: 10px;
+    width: 100%;
+  }
+  
+  .perf-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  
+  .perf-detail-text {
+    font-size: 0.9rem;
+    color: #333;
+    line-height: 1.5;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  
+  /* Kartu Statistik Bawah */
+  .perf-stats-card {
+    background-color: #E0E0E0;
+    padding: 25px;
+    border-radius: 15px;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  
+  .stats-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .stats-total {
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-bottom: 1px solid #bbb;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+  }
+  
+  /* --- KOLOM KANAN (Daftar Tim) --- */
+  .perf-right-column {
+    flex: 0.8;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 250px;
+  }
+  
+  .team-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .team-avatar-small {
+    width: 60px;
+    height: 60px;
+    background-color: #D9D9D9;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+  }
+  
+  .team-info {
+    flex: 1;
+  }
+  
+  .team-name {
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    margin-bottom: 5px;
+    font-size: 0.95rem;
+  }
+  
+  .btn-detail {
+    background-color: #00B0FF; /* Cyan */
+    color: white; /* Di gambar teks hitam, tapi white lebih kontras. Bisa diganti black. */
+    border: none;
+    padding: 5px 20px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .btn-detail:hover {
+    background-color: #0091EA;
+  }
+  
+  /* Rating Bintang */
+  .rating-stars {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+  }

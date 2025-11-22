@@ -1,0 +1,98 @@
+/* Layout Utama */
+.db-container {
+    display: flex;
+    height: 100vh;
+    background-color: #f4f4f4;
+  }
+  
+  .db-content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+  }
+  
+  /* --- TAB NAVIGASI (Biru) --- */
+  .db-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #00B0FF; /* Garis biru bawah */
+  }
+  
+  .db-tab-item {
+    flex: 1; /* Membagi rata lebar */
+    text-align: center;
+    padding: 12px;
+    background-color: #B0BEC5; /* Abu-abu saat tidak aktif */
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-right: 1px solid white;
+  }
+  
+  .db-tab-item:last-child {
+    border-right: none;
+  }
+  
+  .db-tab-item.active {
+    background-color: #00B0FF; /* Biru Cyan saat aktif */
+    color: black;
+  }
+  
+  .db-tab-item:hover {
+    opacity: 0.9;
+  }
+  
+  /* --- KONTROL (Search & Show Entries) --- */
+  .db-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    align-items: center;
+  }
+  
+  /* --- TABEL --- */
+  .db-table-wrapper {
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  
+  .db-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  
+  .db-table th {
+    background-color: white;
+    padding: 15px;
+    text-align: center; /* Header tengah */
+    border-bottom: 2px solid #eee;
+    color: #333;
+  }
+  
+  .db-table td {
+    padding: 12px;
+    text-align: center; /* Isi tengah */
+    border-bottom: 1px solid #eee;
+    background-color: #E0E0E0; /* Background baris abu-abu sesuai mockup */
+  }
+  
+  /* Checkbox Style */
+  .checkbox-cell {
+    width: 40px;
+  }
+  .custom-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  
+  /* Ikon Aksi */
+  .action-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }

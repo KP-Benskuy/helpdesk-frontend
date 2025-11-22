@@ -1,0 +1,148 @@
+/* Container Utama */
+.create-ticket-container {
+    max-width: 1000px;
+    padding-bottom: 50px;
+  }
+  
+  .form-header-title {
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 30px;
+    color: black;
+  }
+  
+  /* Grid Layout untuk Baris Atas (2 Kolom) */
+  .form-row-2-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 15px;
+  }
+  
+  /* Input Group */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group label {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+  }
+  
+  /* Input Styles */
+  .input-field {
+    background-color: #D9D9D9; /* Abu-abu sesuai mockup */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+  }
+  
+  .input-field:focus {
+    box-shadow: 0 0 0 2px #00B0FF;
+  }
+  
+  /* Input Read Only (Gelap dikit biar keliatan mati) */
+  .input-field[readonly] {
+    color: #555;
+    cursor: not-allowed;
+  }
+  
+  /* Subject (Full Width) */
+  .form-row-full {
+    margin-bottom: 20px;
+  }
+  
+  /* Area Utama (Split Kiri & Kanan) */
+  .form-main-split {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr; /* Kanan lebih lebar */
+    gap: 40px;
+    margin-bottom: 20px;
+  }
+  
+  .left-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  /* Area Deskripsi (Textarea) */
+  .right-textarea {
+    display: flex;
+    flex-direction: column;
+    position: relative; /* Untuk icon attachment */
+  }
+  
+  .textarea-field {
+    background-color: #D9D9D9;
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    width: 100%;
+    height: 100%; /* Mengisi tinggi penuh */
+    min-height: 200px;
+    font-size: 1rem;
+    resize: none;
+    box-sizing: border-box; /* Penting agar padding tidak nambah lebar */
+  }
+  
+  /* Icon Attachment (Paperclip) */
+  .attachment-icon {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background-color: #00BCD4; /* Tosca */
+    color: black;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  /* Recaptcha Dummy */
+  .recaptcha-box {
+    background-color: white;
+    border: 1px solid #ccc;
+    width: 250px;
+    padding: 15px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .recaptcha-check {
+    width: 24px;
+    height: 24px;
+  }
+  
+  /* Tombol Kirim */
+  .btn-submit-ticket {
+    background-color: #00B0FF;
+    color: black;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border: none;
+    padding: 10px 50px;
+    border-radius: 8px;
+    cursor: pointer;
+    float: right; /* Taruh di kanan */
+  }
+  
+  .btn-submit-ticket:hover {
+    background-color: #0091EA;
+    color: white;
+  }

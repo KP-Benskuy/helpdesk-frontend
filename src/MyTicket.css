@@ -1,0 +1,102 @@
+/* Container Utama (Sama seperti Dashboard) */
+.ticket-container {
+    display: flex;
+    height: 100vh;
+    background-color: #f4f4f4;
+  }
+  
+  /* AREA KONTEN UTAMA */
+  .ticket-content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+  }
+  
+  /* HEADER SEARCH & FILTER */
+  .ticket-header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .search-box {
+    background: #e0e0e0;
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    width: 300px;
+  }
+  
+  .search-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    margin-left: 10px;
+    width: 100%;
+  }
+  
+  /* TABEL TIKET */
+  .ticket-table-wrapper {
+    background: white; /* Opsional: kalau mau tabel ada background putih */
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+  
+  .ticket-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  
+  .ticket-table th {
+    text-align: left;
+    padding: 15px;
+    border-bottom: 2px solid #eee;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .ticket-table td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+  }
+  
+  /* WARNA BADGE STATUS */
+  .status-badge {
+    padding: 5px 12px;
+    border-radius: 15px;
+    color: white;
+    font-weight: bold;
+    font-size: 0.85rem;
+    text-align: center;
+    display: inline-block;
+    min-width: 80px;
+  }
+  
+  .status-progress { background-color: #00E676; color: black; } /* Hijau */
+  .status-hold { background-color: #0D47A1; } /* Biru Tua */
+  .status-closed { background-color: #333; } /* Hitam/Abu Tua */
+  
+  /* BINTANG RATING */
+  .star-rating {
+    color: #FFD700; /* Warna Emas */
+    font-size: 1.1rem;
+  }
+  
+  /* IKON AKSI (Untuk Staff) */
+  .action-icons {
+    display: flex;
+    gap: 10px;
+    font-size: 1.1rem;
+    color: #333;
+    cursor: pointer;
+  }
+  
+  .link-blue {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+  }
