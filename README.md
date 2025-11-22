@@ -38,12 +38,16 @@ Download source code ke komputermu:
 
 ```bash
 git clone [https://github.com/KP-Benskuy/helpdesk-frontend.git](https://github.com/KP-Benskuy/helpdesk-frontend.git)
-
+```
+```
 cd helpdesk-frontend
-
+```
+```
 npm install
-
+```
+```
 npm run dev
+```
 
 Setelah itu, buka browser dan kunjungi link yang muncul di terminal (biasanya http://localhost:5173)
 
