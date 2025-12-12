@@ -14,12 +14,13 @@ import Profile from './Profile';
 import ProfileSetting from './ProfileSetting';
 
 import Performance from './Performance';
+import TicketApproval from './TicketApproval'; // <-- IMPORT BARU
 
 import Database from './Database';
 import AdminSetting from './AdminSetting';
 
-import UserLogHistory from './UserLogHistory';  
-import CreateTicket from './CreateTicket';        // <-- route baru
+import UserLogHistory from './UserLogHistory';
+import CreateTicket from './CreateTicket';
 
 function App() {
   return (
@@ -37,8 +38,9 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile-setting" element={<ProfileSetting />} />
 
-        {/* --- HALAMAN STAFF --- */}
+        {/* --- HALAMAN STAFF (TECHNICAL & OPERATION) --- */}
         <Route path="/performance" element={<Performance />} />
+        <Route path="/ticket-approval" element={<TicketApproval />} /> {/* <-- ROUTE BARU */}
 
         {/* --- HALAMAN ADMIN --- */}
         <Route path="/database" element={<Database />} />

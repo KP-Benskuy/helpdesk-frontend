@@ -38,7 +38,7 @@ const Dashboard = () => {
     ],
     operation: [
       { name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
-      { name: 'Tiket Disetujui', icon: <FaTicketAlt />, link: '#' },
+      { name: 'Tiket Disetujui', icon: <FaTicketAlt />, link: '/ticket-approval' },
       { name: 'Tiket Saya', icon: <FaTicketAlt />, link: '/my-ticket' },
       { name: 'Kinerja', icon: <FaChartBar />, link: '/performance' }, 
     ]

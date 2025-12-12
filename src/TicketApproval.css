@@ -1,0 +1,142 @@
+/* --- CONTROLS --- */
+.table-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.search-box {
+    position: relative;
+    width: 300px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 40px 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #e0e0e0; /* Background abu-abu muda input */
+}
+
+.search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+.entries-box {
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.entries-select {
+    margin: 0 5px;
+    padding: 5px;
+    background: #bbb;
+    border: none;
+    border-radius: 3px;
+}
+
+/* --- TABLE STYLING --- */
+.table-responsive {
+    overflow-x: auto;
+    background: white;
+    border-radius: 5px;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.custom-table th {
+    background-color: #f2f2f2; /* Header abu-abu terang */
+    padding: 15px;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+    font-weight: bold;
+    color: #444;
+}
+
+.custom-table td {
+    padding: 15px;
+    border-bottom: 1px solid #eee; /* Garis pemisah antar baris */
+    vertical-align: middle;
+}
+
+/* Warna selang-seling (Zebra striping) optional, di mockup terlihat solid abu muda */
+.custom-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+.custom-table tbody tr:nth-child(odd) {
+    background-color: #e6e6e6; 
+}
+
+/* Link Ticket No */
+.ticket-link {
+    color: #333;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+/* --- ACTIONS & INPUTS --- */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-action {
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    font-size: 1.1rem;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.btn-approve { color: black; font-weight: bold; }
+.btn-approve:hover { background-color: #ccffcc; }
+
+.btn-reject { color: black; font-weight: bold;}
+.btn-reject:hover { background-color: #ffcccc; }
+
+.assign-select {
+    padding: 5px;
+    background-color: #999;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    width: 100%;
+    cursor: pointer;
+}
+
+/* --- FOOTER PAGINATION --- */
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.pagination {
+    display: flex;
+    gap: 5px;
+}
+
+.pagination span {
+    cursor: pointer;
+    padding: 5px 10px;
+    color: #666;
+}
+
+.pagination span.active {
+    font-weight: bold;
+    color: #000;
+}
