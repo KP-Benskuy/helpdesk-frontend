@@ -78,41 +78,53 @@ const TicketApproval = () => {
           {/* TABEL */}
           <div className="table-responsive">
             <table className="custom-table">
-                <thead>
-                    <tr>
-                        <th>Ticket No.</th>
-                        <th>Subjek</th>
-                        <th>Kategori</th>
-                        <th>Prioritas</th>
-                        <th>Tanggal</th>
-                        <th>Aksi</th>
-                        <th>Tugaskan ke</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {tickets.map((ticket) => (
-                        <tr key={ticket.id}>
-                            <td><a href={`/ticket/${ticket.id}`} className="ticket-link">{ticket.id}</a></td>
-                            <td>{ticket.subject}</td>
-                            <td>{ticket.category}</td>
-                            <td>{ticket.priority}</td>
-                            <td>{ticket.date}</td>
-                            <td>
-                                <div className="action-buttons">
-                                    <button className="btn-action btn-approve"><FaCheck /></button>
-                                    <button className="btn-action btn-reject"><FaTimes /></button>
-                                </div>
-                            </td>
-                            <td>
-                                <select className="assign-select">
-                                    <option value="">-- Pilih --</option>
-                                    <option value="tech1">Teknisi A</option>
-                                    <option value="tech2">Teknisi B</option>
-                                </select>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
+<thead>
+    <tr>
+        <th>Ticket No.</th>
+        <th>Subjek</th>
+        <th>Kategori</th>
+        <th>Tanggal</th>
+        <th>Prioritas</th>
+        <th>Tugaskan ke</th> {/* Pindah ke sini */}
+        <th>Aksi</th>        {/* Pindah ke sini */}
+    </tr>
+</thead>
+<tbody>
+    {tickets.map((ticket) => (
+        <tr key={ticket.id}>
+            <td><a href={`/ticket/${ticket.id}`} className="ticket-link">{ticket.id}</a></td>
+            <td>{ticket.subject}</td>
+            <td>{ticket.category}</td>
+            <td>{ticket.date}</td>
+            <td>
+                <select className="assign-select" defaultValue={ticket.priority}>
+                    <option value="">-- Pilih --</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </td>
+
+            {/* KOLOM TUGASKAN KE (SEKARANG DI KIRI AKSI) */}
+            <td>
+                <select className="assign-select">
+                    <option value="">-- Pilih --</option>
+                    <option value="tech1">Teknisi A</option>
+                    <option value="tech2">Teknisi B</option>
+                </select>
+            </td>
+
+            {/* KOLOM AKSI (SEKARANG DI PALING KANAN) */}
+            <td>
+                <div className="action-buttons">
+                    <button className="btn-action btn-approve"><FaCheck /></button>
+                    <button className="btn-action btn-reject"><FaTimes /></button>
+                </div>
+            </td>
+        </tr>
+    ))}
+</tbody>
+
             </table>
           </div>
 
