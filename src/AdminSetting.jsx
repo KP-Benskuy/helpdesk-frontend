@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom';
 import './Dashboard.css';    // Layout Utama
 import './AdminSetting.css'; // CSS Khusus Halaman Ini
 
-import { FaThLarge, FaTicketAlt, FaDatabase, FaCog, FaHistory, FaUser, FaBell, FaSignOutAlt, FaChevronDown } from 'react-icons/fa';
+import { FaThLarge, FaDatabase, FaCog, FaHistory, FaUser, FaBell, FaSignOutAlt, FaChevronDown } from 'react-icons/fa';
 
 const AdminSetting = () => {
-  // Cek Role - UPDATE: Ambil dari localStorage
+  // Cek Role - Ambil dari localStorage
   const [userRole, setUserRole] = useState(localStorage.getItem('simulatedRole') || 'admin');
 
   // Fungsi ganti role dan simpan ke memori
@@ -22,14 +22,15 @@ const AdminSetting = () => {
     admin: [
       { name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
       { name: 'Database', icon: <FaDatabase />, link: '/database' },
-      { name: 'Setting', icon: <FaCog />, link: '/admin-setting' }, // Aktif
+      { name: 'Setting', icon: <FaCog />, link: '/admin-setting' }, 
       { name: 'User Log History', icon: <FaHistory />, link: '/user-log' },
     ],
-    // ... role lain default kosong karena akses ditolak
-    user: [], technical: [], operation: []
+    // Role lain default kosong karena akses ditolak di halaman ini
+    user: [], 
+    operation: []
   };
 
-  // --- LOGIKA AKSES ---
+  // --- LOGIKA AKSES (Hanya ADMIN) ---
   if (userRole !== 'admin') {
     return (
         <div style={{padding: '50px', textAlign: 'center'}}>
@@ -41,7 +42,6 @@ const AdminSetting = () => {
                 <select onChange={handleRoleChange} value={userRole}>
                     <option value="admin">Admin</option>
                     <option value="user">User</option>
-                    <option value="technical">Technical Support</option>
                     <option value="operation">Operation Team</option>
                 </select>
             </div>
@@ -64,14 +64,12 @@ const AdminSetting = () => {
           ))}
         </ul>
 
-        {/* SIMULASI LOGIN */}
+        {/* SIMULASI LOGIN (Hanya ADMIN, USER, OPERATION) */}
         <div style={{padding: '20px', marginTop: 'auto', fontSize: '0.8em'}}>
             <p>Simulasi Login Sebagai:</p>
-            {/* UPDATE: Gunakan handleRoleChange */}
             <select onChange={handleRoleChange} value={userRole} style={{width: '100%', padding: '5px'}}>
                 <option value="admin">Admin</option>
                 <option value="user">User</option>
-                <option value="technical">Technical Support</option>
                 <option value="operation">Operation Team</option>
             </select>
         </div>
@@ -89,7 +87,7 @@ const AdminSetting = () => {
         </header>
 
         <div className="content-padding">
-          <h2 className="page-title">Setting</h2>
+          <h2 className="page-title">System Settings</h2>
 
           <div className="admin-setting-container">
             
@@ -101,68 +99,56 @@ const AdminSetting = () => {
                 <div className="group-row">
                     <span>Language</span>
                     <div className="lang-toggle">
-                        <div className="lang-opt active">BM</div>
-                        <div className="lang-opt inactive">BI</div>
+                        <div className="lang-opt active">ID</div>
+                        <div className="lang-opt inactive">EN</div>
                     </div>
                 </div>
                 <div className="group-row">
-                    <span>Data Backup</span>
+                    <span>Auto Data Backup</span>
                     <input type="checkbox" className="custom-checkbox" defaultChecked />
                 </div>
             </div>
 
-            {/* GROUP 2: CONNECT TO */}
+            {/* GROUP 2: INTEGRATION */}
             <div className="setting-group">
                 <div className="group-header">
-                    Connect To <FaChevronDown size={12}/>
+                    Connect To Backend <FaChevronDown size={12}/>
                 </div>
                 <div className="group-row">
-                    <span>GoDash</span>
+                    <span>SMTP Email Notification</span>
                     <input type="checkbox" className="custom-checkbox" defaultChecked />
                 </div>
                 <div className="group-row">
-                    <span>SuperController</span>
+                    <span>Log Activity Tracking</span>
                     <input type="checkbox" className="custom-checkbox" defaultChecked />
                 </div>
             </div>
 
-            {/* GROUP 3: EMAIL */}
+            {/* GROUP 3: AUTHORIZATION (Sesuai Role Backend) */}
             <div className="setting-group">
                 <div className="group-header">
-                    Email <FaChevronDown size={12}/>
+                    Access Control <FaChevronDown size={12}/>
                 </div>
                 <div className="group-row">
-                    <span>Enable SMTP</span>
-                    <input type="checkbox" className="custom-checkbox" defaultChecked />
-                </div>
-            </div>
-
-            {/* GROUP 4: AUTHORIZATION */}
-            <div className="setting-group">
-                <div className="group-header">
-                    Authorization <FaChevronDown size={12}/>
-                </div>
-                <div className="group-row">
-                    <span>Edit authorization</span>
+                    <span>Allow User Registration</span>
                     <input type="checkbox" className="custom-checkbox" defaultChecked />
                 </div>
                 <div className="group-row">
-                    <span>Authority Level</span>
+                    <span>Default Role for New User</span>
                     <select className="auth-dropdown">
-                        <option></option>
-                        <option>High</option>
-                        <option>Medium</option>
+                        <option>USER</option>
+                        <option>OPERATIONAL</option>
                     </select>
                 </div>
             </div>
 
-            {/* GROUP 5: NOTIFICATION */}
+            {/* GROUP 4: NOTIFICATION */}
             <div className="setting-group">
                 <div className="group-header">
-                    Notification <FaChevronDown size={12}/>
+                    Push Notification <FaChevronDown size={12}/>
                 </div>
                 <div className="group-row">
-                    <span>Enable Notification</span>
+                    <span>Enable Global Notification</span>
                     <input type="checkbox" className="custom-checkbox" defaultChecked />
                 </div>
             </div>

@@ -1,26 +1,27 @@
+// File: src/UserLogHistory.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';      // Layout Utama
 import './UserLogHistory.css'; // CSS Khusus Halaman Ini
 
-import { FaThLarge, FaTicketAlt, FaDatabase, FaCog, FaHistory, FaUser, FaBell, FaSignOutAlt } from 'react-icons/fa';
+import { FaThLarge, FaDatabase, FaCog, FaHistory, FaUser, FaBell, FaSignOutAlt } from 'react-icons/fa';
 
 const UserLogHistory = () => {
-  // 1. Cek Peran (Wajib Admin)
+  // 1. Cek Peran (Hanya Admin yang memiliki akses penuh ke log sistem)
   const [userRole, setUserRole] = useState(localStorage.getItem('simulatedRole') || 'admin');
 
-  // Fungsi ganti role
+  // Fungsi ganti role simulasi
   const handleRoleChange = (e) => {
       const newRole = e.target.value;
       setUserRole(newRole);
       localStorage.setItem('simulatedRole', newRole);
   };
 
-  // --- DATA DUMMY SESUAI MOCKUP ---
+  // --- DATA DUMMY ---
   const logs = [
-    { no: 1, signIn: '130821 / 0800', staffId: 'XL000001', dept: 'OT', activity: 'Create Team', signOut: '130821 / 0815' },
-    { no: 2, signIn: '130821 / 0805', staffId: '', dept: '', activity: '', signOut: '130821 / 0810' }, // Data kosong sesuai gambar
-    { no: 3, signIn: '', staffId: '', dept: '', activity: '', signOut: '' }, // Baris kosong placeholder
+    { no: 1, signIn: '130821 / 0800', staffId: 'XL000001', dept: 'IT OPS', activity: 'Login System', signOut: '130821 / 0815' },
+    { no: 2, signIn: '130821 / 0805', staffId: 'XL000005', dept: 'ADMIN', activity: 'Update Category', signOut: '130821 / 0810' },
+    { no: 3, signIn: '', staffId: '', dept: '', activity: '', signOut: '' }, 
     { no: 4, signIn: '', staffId: '', dept: '', activity: '', signOut: '' },
     { no: 5, signIn: '', staffId: '', dept: '', activity: '', signOut: '' },
   ];
@@ -31,12 +32,13 @@ const UserLogHistory = () => {
       { name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
       { name: 'Database', icon: <FaDatabase />, link: '/database' },
       { name: 'Setting', icon: <FaCog />, link: '/admin-setting' },
-      { name: 'User Log History', icon: <FaHistory />, link: '/user-log' }, // Aktif di sini
+      { name: 'User Log History', icon: <FaHistory />, link: '/user-log' },
     ],
-    user: [], technical: [], operation: []
+    user: [], 
+    operation: []
   };
 
-  // --- JIKA BUKAN ADMIN ---
+  // --- PROTEKSI HALAMAN (Hanya ADMIN) ---
   if (userRole !== 'admin') {
     return (
         <div style={{padding: '50px', textAlign: 'center'}}>
@@ -48,6 +50,7 @@ const UserLogHistory = () => {
                 <select onChange={handleRoleChange} value={userRole}>
                     <option value="admin">Admin</option>
                     <option value="user">User</option>
+                    <option value="operation">Operation Team</option>
                 </select>
             </div>
         </div>
@@ -69,12 +72,12 @@ const UserLogHistory = () => {
           ))}
         </ul>
 
+        {/* SIMULASI LOGIN (Technical Support Dihapus) */}
         <div style={{padding: '20px', marginTop: 'auto', fontSize: '0.8em'}}>
             <p>Simulasi Login Sebagai:</p>
             <select onChange={handleRoleChange} value={userRole} style={{width: '100%', padding: '5px'}}>
                 <option value="admin">Admin</option>
                 <option value="user">User</option>
-                <option value="technical">Technical Support</option>
                 <option value="operation">Operation Team</option>
             </select>
         </div>
@@ -92,25 +95,23 @@ const UserLogHistory = () => {
         </header>
 
         <div className="content-padding">
-          <h2 className="page-title">User Log History</h2>
+          <h2 className="page-title">User Activity Logs</h2>
 
           <div className="log-container">
-            {/* Show Entries */}
             <div className="log-controls">
                 Show: <select style={{padding: '5px'}}><option>10</option></select> Entries
             </div>
 
-            {/* TABLE */}
             <div className="log-table-wrapper">
                 <table className="log-table">
                     <thead>
                         <tr>
                             <th>No.</th>
-                            <th>Date/Sign InTime</th>
+                            <th>Date/Sign In Time</th>
                             <th>Staff ID</th>
                             <th>Department</th>
                             <th>Activity</th>
-                            <th>Date/Sign Out time</th>
+                            <th>Date/Sign Out Time</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -128,9 +129,8 @@ const UserLogHistory = () => {
                 </table>
             </div>
 
-            {/* Footer */}
             <div className="log-footer">
-                <span>Showing 1 to 5 of 5 entries</span>
+                <span>Showing {logs.filter(l => l.signIn).length} active entries</span>
                 <div className="pagination-arrows">{'<<'} 1 {'>>'}</div>
             </div>
 

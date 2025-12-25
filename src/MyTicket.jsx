@@ -1,5 +1,5 @@
 // File: src/MyTicket.jsx
-import React, { useState, useEffect } from 'react'; // Tambah useEffect
+import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
 import './MyTicket.css';
 import { Link } from 'react-router-dom';
@@ -8,23 +8,21 @@ import { FaThLarge, FaTicketAlt, FaChartBar, FaSearch, FaStar, FaFileAlt, FaUser
 
 const MyTicket = () => {
   
-  // --- UPDATE PENTING: AMBIL DATA DARI MEMORI BROWSER ---
-  // Kalau ada data tersimpan, pakai itu. Kalau tidak, default ke 'user'
+  // Mengambil peran dari memori browser, default ke 'user'
   const [userRole, setUserRole] = useState(localStorage.getItem('simulatedRole') || 'user');
 
-  // Fungsi untuk menangani perubahan peran & menyimpannya ke memori
   const handleRoleChange = (e) => {
     const newRole = e.target.value;
     setUserRole(newRole);
-    localStorage.setItem('simulatedRole', newRole); // Simpan ke memori browser
+    localStorage.setItem('simulatedRole', newRole); 
   };
 
-  // --- DATA DUMMY TIKET ---
+  // Data dummy tiket yang telah disesuaikan
   const tickets = [
-    { id: '1234', subject: 'Login issue', category: 'Access Issue', priority: 'High', date: '13/08/25', status: 'In Progress', supportBy: 'Tech Support', rating: 3 },
-    { id: '1124', subject: 'New ticket issue', category: 'Access Issue', priority: 'Medium', date: '14/08/25', status: 'On hold', supportBy: 'Operation Team', rating: 4 },
-    { id: '1224', subject: 'New request', category: 'Feedback', priority: 'Low', date: '13/08/25', status: 'Closed', supportBy: 'Tech Support', rating: 5 },
-    { id: '1244', subject: 'Ticket submission', category: 'Ticketing', priority: 'High', date: '14/08/25', status: 'In Progress', supportBy: 'Operation Team', rating: 0 }, 
+    { id: '1234', subject: 'Login issue', category: 'AKUN', priority: 'High', date: '13/08/25', status: 'In Progress', supportBy: 'Operation Team', rating: 3 },
+    { id: '1124', subject: 'New ticket issue', category: 'HARDWARE', priority: 'Medium', date: '14/08/25', status: 'On hold', supportBy: 'Operation Team', rating: 4 },
+    { id: '1224', subject: 'New request', category: 'SOFTWARE', priority: 'Low', date: '13/08/25', status: 'Closed', supportBy: 'Operation Team', rating: 5 },
+    { id: '1244', subject: 'Ticket submission', category: 'AKUN', priority: 'High', date: '14/08/25', status: 'In Progress', supportBy: 'Operation Team', rating: 0 }, 
   ];
 
   const getStatusClass = (status) => {
@@ -34,16 +32,12 @@ const MyTicket = () => {
     return '';
   };
 
+  // Menu navigasi disesuaikan dengan dokumentasi backend (Technical dihapus)
   const menus = {
     user: [
       { name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
       { name: 'Buat Tiket', icon: <FaTicketAlt />, link: '/create-ticket' },
       { name: 'Tiket Saya', icon: <FaTicketAlt />, link: '/my-ticket' },
-    ],
-    technical: [
-      { name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
-      { name: 'Tiket Saya', icon: <FaTicketAlt />, link: '/my-ticket' },
-      { name: 'Kinerja', icon: <FaChartBar />, link: '/performance' },
     ],
     operation: [
       { name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
@@ -54,20 +48,19 @@ const MyTicket = () => {
     admin: [] 
   };
 
+  // Tampilan jika Admin mencoba masuk ke My Ticket
   if (userRole === 'admin') {
     return (
         <div style={{padding: '50px', textAlign: 'center'}}>
             <h1>Akses Ditolak</h1>
-            <p>Admin tidak memiliki halaman My Ticket.</p>
+            <p>Halaman Database dan Pengaturan khusus untuk Admin. Admin tidak memiliki daftar tiket pribadi.</p>
             <Link to="/dashboard">Kembali ke Dashboard</Link>
             
             <div style={{marginTop: '20px'}}>
-                <p>Ganti Role:</p>
-                {/* Gunakan handleRoleChange */}
+                <p>Simulasi Ganti Role:</p>
                 <select onChange={handleRoleChange} value={userRole}>
                     <option value="admin">Admin</option>
                     <option value="user">User</option>
-                    <option value="technical">Technical Support</option>
                     <option value="operation">Operation Team</option>
                 </select>
             </div>
@@ -79,7 +72,7 @@ const MyTicket = () => {
     <div className="dashboard-container">
       <aside className="sidebar">
         <ul className="sidebar-menu">
-          {menus[userRole].map((item, index) => (
+          {menus[userRole]?.map((item, index) => (
             <Link to={item.link} key={index} style={{textDecoration: 'none'}}>
                 <li className={`sidebar-item ${item.name === 'Tiket Saya' ? 'active' : ''}`}>
                 <span className="sidebar-icon">{item.icon}</span>
@@ -91,11 +84,9 @@ const MyTicket = () => {
 
         <div style={{padding: '20px', marginTop: 'auto', fontSize: '0.8em'}}>
             <p>Simulasi Login Sebagai:</p>
-            {/* UPDATE: Gunakan handleRoleChange di sini */}
             <select onChange={handleRoleChange} value={userRole} style={{width: '100%', padding: '5px'}}>
                 <option value="admin">Admin</option>
                 <option value="user">User</option>
-                <option value="technical">Technical Support</option>
                 <option value="operation">Operation Team</option>
             </select>
         </div>
@@ -115,13 +106,13 @@ const MyTicket = () => {
 
         <div className="ticket-content">
           <h2 className="page-title">
-            {userRole === 'user' ? 'Daftar Tiket' : 'My Ticket'}
+            {userRole === 'user' ? 'Daftar Tiket Saya' : 'Manajemen Tiket'}
           </h2>
 
           <div className="ticket-header-controls">
             <div className="search-box">
                 <FaSearch color="#666" />
-                <input type="text" placeholder="Cari tiket..." className="search-input" />
+                <input type="text" placeholder="Cari nomor atau subjek..." className="search-input" />
             </div>
             <div>
                 Tampilkan: <select><option>10</option><option>25</option></select> Entri
@@ -132,7 +123,7 @@ const MyTicket = () => {
             <table className="ticket-table">
               <thead>
                 <tr>
-                  <th>{userRole === 'user' ? 'No Tiket' : 'Ticket No.'}</th>
+                  <th>No Tiket</th>
                   <th>Subjek</th>
                   {userRole !== 'user' && <th>Kategori</th>}
                   {userRole !== 'user' && <th>Prioritas</th>}
@@ -144,7 +135,7 @@ const MyTicket = () => {
 
                   {userRole !== 'user' && <th>Status</th>}
                   
-                  {userRole === 'user' ? <th>Rating</th> : <th>Orang Penanggung Jawab</th>}
+                  {userRole === 'user' ? <th>Rating</th> : <th>Penanggung Jawab</th>}
                   {userRole !== 'user' && <th>Aksi</th>}
                 </tr>
               </thead>
@@ -176,16 +167,16 @@ const MyTicket = () => {
                                 ))}
                             </div>
                         ) : (
-                           <span>-</span> 
+                           <span>{ticket.supportBy}</span> 
                         )}
                     </td>
 
                     {userRole !== 'user' && (
                         <td>
                             <div className="action-icons">
-                                <FaFileAlt title="Detail" />
-                                <FaUserPlus title="Assign" />
-                                <FaDownload title="Download" />
+                                <FaFileAlt title="Detail" style={{cursor: 'pointer'}} />
+                                <FaUserPlus title="Assign Agent" style={{cursor: 'pointer'}} />
+                                <FaDownload title="Export PDF" style={{cursor: 'pointer'}} />
                             </div>
                         </td>
                     )}
@@ -196,7 +187,7 @@ const MyTicket = () => {
           </div>
           
           <div style={{marginTop: '20px', fontSize: '0.9rem', color: '#666'}}>
-              Tampilkan 1 hingga 4 dari 4 entri
+              Menampilkan {tickets.length} data tiket.
           </div>
 
         </div>
