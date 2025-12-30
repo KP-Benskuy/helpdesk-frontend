@@ -1,60 +1,53 @@
 // File: src/UserLogHistory.jsx
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import './Dashboard.css';      // Layout Utama
-import './UserLogHistory.css'; // CSS Khusus Halaman Ini
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import API from './api/api';
+import './Dashboard.css';
+import './UserLogHistory.css';
 
 import { FaThLarge, FaDatabase, FaCog, FaHistory, FaUser, FaBell, FaSignOutAlt } from 'react-icons/fa';
 
 const UserLogHistory = () => {
-  // 1. Cek Peran (Hanya Admin yang memiliki akses penuh ke log sistem)
-  const [userRole, setUserRole] = useState(localStorage.getItem('simulatedRole') || 'admin');
+  const navigate = useNavigate();
+  const [userName, setUserName] = useState('');
+  const [logs, setLogs] = useState([]); // State untuk data log asli
+  const [loading, setLoading] = useState(true);
 
-  // Fungsi ganti role simulasi
-  const handleRoleChange = (e) => {
-      const newRole = e.target.value;
-      setUserRole(newRole);
-      localStorage.setItem('simulatedRole', newRole);
+  // --- 1. VERIFIKASI AKSES & AMBIL DATA DARI BACKEND ---
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Cek profil admin
+        const profileRes = await API.get('/api/auth/me');
+        if (response.data.role !== 'ADMIN') {
+          navigate('/dashboard');
+          return;
+        }
+        setUserName(profileRes.data.name);
+
+        // Ambil riwayat log aktivitas dari API
+        // Catatan: Pastikan teman Anda sudah menyediakan endpoint ini
+        const logsRes = await API.get('/api/logs'); 
+        setLogs(logsRes.data);
+      } catch (error) {
+        console.error("Gagal mengambil riwayat log:", error);
+        // Jika API /api/logs belum ada, kita set [] agar tidak error
+        setLogs([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/');
   };
 
-  // --- DATA DUMMY ---
-  const logs = [
-    { no: 1, signIn: '130821 / 0800', staffId: 'XL000001', dept: 'IT OPS', activity: 'Login System', signOut: '130821 / 0815' },
-    { no: 2, signIn: '130821 / 0805', staffId: 'XL000005', dept: 'ADMIN', activity: 'Update Category', signOut: '130821 / 0810' },
-    { no: 3, signIn: '', staffId: '', dept: '', activity: '', signOut: '' }, 
-    { no: 4, signIn: '', staffId: '', dept: '', activity: '', signOut: '' },
-    { no: 5, signIn: '', staffId: '', dept: '', activity: '', signOut: '' },
-  ];
-
-  // --- MENU SIDEBAR ---
-  const menus = {
-    admin: [
-      { name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
-      { name: 'Database', icon: <FaDatabase />, link: '/database' },
-      { name: 'Setting', icon: <FaCog />, link: '/admin-setting' },
-      { name: 'User Log History', icon: <FaHistory />, link: '/user-log' },
-    ],
-    user: [], 
-    operation: []
-  };
-
-  // --- PROTEKSI HALAMAN (Hanya ADMIN) ---
-  if (userRole !== 'admin') {
-    return (
-        <div style={{padding: '50px', textAlign: 'center'}}>
-            <h1>Akses Ditolak</h1>
-            <p>Halaman User Log History hanya untuk Admin.</p>
-            <Link to="/dashboard">Kembali ke Dashboard</Link>
-            
-             <div style={{marginTop: '20px'}}>
-                <select onChange={handleRoleChange} value={userRole}>
-                    <option value="admin">Admin</option>
-                    <option value="user">User</option>
-                    <option value="operation">Operation Team</option>
-                </select>
-            </div>
-        </div>
-    );
+  if (loading) {
+    return <div style={{textAlign: 'center', marginTop: '50px', color: 'white'}}>Menghubungkan ke Server Log...</div>;
   }
 
   return (
@@ -62,7 +55,12 @@ const UserLogHistory = () => {
       {/* SIDEBAR */}
       <aside className="sidebar">
         <ul className="sidebar-menu">
-          {menus.admin.map((item, index) => (
+          {[
+            { name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
+            { name: 'Database', icon: <FaDatabase />, link: '/database' },
+            { name: 'Setting', icon: <FaCog />, link: '/admin-setting' },
+            { name: 'User Log History', icon: <FaHistory />, link: '/user-log' },
+          ].map((item, index) => (
             <Link to={item.link} key={index} style={{textDecoration: 'none'}}>
                 <li className={`sidebar-item ${item.name === 'User Log History' ? 'active' : ''}`}>
                 <span className="sidebar-icon">{item.icon}</span>
@@ -71,16 +69,6 @@ const UserLogHistory = () => {
             </Link>
           ))}
         </ul>
-
-        {/* SIMULASI LOGIN (Technical Support Dihapus) */}
-        <div style={{padding: '20px', marginTop: 'auto', fontSize: '0.8em'}}>
-            <p>Simulasi Login Sebagai:</p>
-            <select onChange={handleRoleChange} value={userRole} style={{width: '100%', padding: '5px'}}>
-                <option value="admin">Admin</option>
-                <option value="user">User</option>
-                <option value="operation">Operation Team</option>
-            </select>
-        </div>
       </aside>
 
       {/* MAIN CONTENT */}
@@ -88,9 +76,12 @@ const UserLogHistory = () => {
         <header className="top-header">
           <div className="header-title">Helpdesk & Ticketing System FTI</div>
           <div className="header-icons">
+            <span style={{fontSize: '0.8rem', marginRight: '10px'}}>Admin: {userName}</span>
             <FaBell />
             <Link to="/profile" style={{color: 'white', display: 'flex', alignItems: 'center'}}><FaUser /></Link>
-            <Link to="/" style={{color: 'white'}}><FaSignOutAlt /></Link>
+            <button onClick={handleLogout} style={{background: 'none', border: 'none', color: 'white', cursor: 'pointer'}}>
+                <FaSignOutAlt />
+            </button>
           </div>
         </header>
 
@@ -99,7 +90,7 @@ const UserLogHistory = () => {
 
           <div className="log-container">
             <div className="log-controls">
-                Show: <select style={{padding: '5px'}}><option>10</option></select> Entries
+                Total Aktivitas: <strong>{logs.length}</strong> Riwayat Terdeteksi
             </div>
 
             <div className="log-table-wrapper">
@@ -107,33 +98,36 @@ const UserLogHistory = () => {
                     <thead>
                         <tr>
                             <th>No.</th>
-                            <th>Date/Sign In Time</th>
-                            <th>Staff ID</th>
-                            <th>Department</th>
-                            <th>Activity</th>
-                            <th>Date/Sign Out Time</th>
+                            <th>Waktu Aktivitas</th>
+                            <th>User/Staff</th>
+                            <th>Role</th>
+                            <th>Aksi/Aktivitas</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {logs.map((log, index) => (
-                            <tr key={index}>
-                                <td>{log.no}.</td>
-                                <td>{log.signIn}</td>
-                                <td>{log.staffId}</td>
-                                <td>{log.dept}</td>
-                                <td>{log.activity}</td>
-                                <td>{log.signOut}</td>
+                        {logs.length > 0 ? logs.map((log, index) => (
+                            <tr key={log.id || index}>
+                                <td>{index + 1}.</td>
+                                <td>{new Date(log.createdAt).toLocaleString('id-ID')}</td>
+                                <td>{log.user?.name || log.userName || 'Unknown'}</td>
+                                <td><span className={`badge ${log.role}`}>{log.role}</span></td>
+                                <td>{log.activity || log.action}</td>
+                                <td style={{color: 'green'}}>Success</td>
                             </tr>
-                        ))}
+                        )) : (
+                            <tr>
+                                <td colSpan="6" style={{textAlign: 'center', padding: '20px'}}>Belum ada data log yang tercatat di database.</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
 
             <div className="log-footer">
-                <span>Showing {logs.filter(l => l.signIn).length} active entries</span>
+                <span>Data ditarik langsung dari sistem database Zeabur</span>
                 <div className="pagination-arrows">{'<<'} 1 {'>>'}</div>
             </div>
-
           </div>
         </div>
       </div>

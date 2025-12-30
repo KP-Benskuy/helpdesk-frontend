@@ -1,147 +1,159 @@
-import React, { useState } from 'react';
-import './Dashboard.css'; // Menggunakan style dasar yang sama
-import './TicketApproval.css'; // Style khusus untuk tabel ini
-import { Link } from 'react-router-dom'; 
+// File: src/TicketApproval.jsx
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import API from './api/api';
+import './Dashboard.css'; 
+import './TicketApproval.css'; 
 import { FaThLarge, FaTicketAlt, FaChartBar, FaBell, FaUser, FaSignOutAlt, FaSearch, FaCheck, FaTimes } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 
 const TicketApproval = () => {
-  // Hardcode role sebagai 'operation' karena halaman ini khusus tim operation
-  const userRole = 'operation'; 
+    const navigate = useNavigate();
+    const [userName, setUserName] = useState('');
+    const [userRole, setUserRole] = useState('');
+    const [tickets, setTickets] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
 
-  // Data Dummy sesuai gambar mockup
-  const [tickets, setTickets] = useState([
-    { id: '1234', subject: 'Login issue', category: 'Access issue', priority: 'High', date: '13/08/21', assignedTo: '' },
-    { id: '1124', subject: 'New ticket issue', category: 'Access issue', priority: 'Medium', date: '14/08/21', assignedTo: '' },
-    { id: '1224', subject: 'New request', category: 'Feedback', priority: 'Low', date: '13/08/21', assignedTo: '' },
-    { id: '1244', subject: 'Ticket submission', category: 'Ticketing', priority: 'High', date: '14/08/21', assignedTo: '' },
-    { id: '1114', subject: 'Login issue', category: 'Access issue', priority: 'High', date: '3/08/21', assignedTo: '' },
-  ]);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // 1. Ambil data profil
+                const profileRes = await API.get('/api/auth/me');
+                setUserName(profileRes.data.name);
+                setUserRole(profileRes.data.role);
 
-  // Sidebar Menu (Sama seperti Dashboard, tapi yang aktif adalah Tiket Disetujui)
-  const menus = [
-      { name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
-      { name: 'Tiket Disetujui', icon: <FaTicketAlt />, link: '/ticket-approval', active: true },
-      { name: 'Tiket Saya', icon: <FaTicketAlt />, link: '/my-ticket' },
-      { name: 'Kinerja', icon: <FaChartBar />, link: '/performance' }, 
-  ];
+                // 2. Ambil data tiket
+                const ticketRes = await API.get('/api/tickets');
+                
+                // --- PERBAIKAN VALIDASI DATA ---
+                // Pastikan kita bekerja dengan Array. Jika backend mengirim { tickets: [...] }, ambil propertinya.
+                const rawData = ticketRes.data;
+                const actualTickets = Array.isArray(rawData) 
+                    ? rawData 
+                    : (rawData.tickets || []); 
 
-  return (
-    <div className="dashboard-container">
-      {/* --- SIDEBAR (Reused Structure) --- */}
-      <aside className="sidebar">
-        <ul className="sidebar-menu">
-          {menus.map((item, index) => (
-            <Link to={item.link} key={index} style={{textDecoration: 'none'}}>
-                <li className={`sidebar-item ${item.active ? 'active' : ''}`}>
-                    <span className="sidebar-icon">{item.icon}</span>
-                    {item.name}
-                </li>
-            </Link>
-          ))}
-        </ul>
-      </aside>
+                if (Array.isArray(actualTickets)) {
+                    const pendingTickets = actualTickets.filter(t => 
+                        t.status?.toLowerCase() === 'open' || 
+                        t.status?.toLowerCase() === 'pending'
+                    );
+                    setTickets(pendingTickets);
+                } else {
+                    setTickets([]);
+                }
 
-      {/* --- MAIN CONTENT --- */}
-      <div className="main-content">
-        {/* HEADER */}
-        <header className="top-header">
-          <div className="header-title">Helpdesk & Ticketing System FTI</div>
-          <div className="header-icons">
-            <FaBell />
-            <FaUser />
-            <Link to="/" style={{color: 'white'}}><FaSignOutAlt /></Link>
-          </div>
-        </header>
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                // JANGAN panggil localStorage.clear() di sini agar tidak tertendang ke login jika hanya error data
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [navigate]);
 
-        {/* ISI KONTEN */}
-        <div className="content-padding">
-          <h2 className="page-title">Tiket Disetujui</h2>
+    const handleApprove = async (ticketId) => {
+        if (userRole === 'USER') {
+            return Swal.fire('Akses Ditolak', 'Hanya Staff yang bisa menyetujui tiket.', 'error');
+        }
 
-          {/* CONTROLS (Search & Show Entries) */}
-          <div className="table-controls">
-            <div className="search-box">
-                <input type="text" placeholder="Cari Tiket" />
-                <FaSearch className="search-icon"/>
-            </div>
-            
-            <div className="entries-box">
-                Show: 
-                <select className="entries-select">
-                    <option>10</option>
-                    <option>25</option>
-                    <option>50</option>
-                </select> 
-                Entries
-            </div>
-          </div>
+        try {
+            await API.put(`/api/tickets/${ticketId}`, { status: 'In Progress' });
+            Swal.fire('Berhasil!', 'Tiket disetujui.', 'success');
+            setTickets(tickets.filter(t => t.id !== ticketId));
+        } catch (error) {
+            Swal.fire('Gagal', 'Gagal memperbarui status tiket.', 'error');
+        }
+    };
 
-          {/* TABEL */}
-          <div className="table-responsive">
-            <table className="custom-table">
-<thead>
-    <tr>
-        <th>Ticket No.</th>
-        <th>Subjek</th>
-        <th>Kategori</th>
-        <th>Tanggal</th>
-        <th>Prioritas</th>
-        <th>Tugaskan ke</th> {/* Pindah ke sini */}
-        <th>Aksi</th>        {/* Pindah ke sini */}
-    </tr>
-</thead>
-<tbody>
-    {tickets.map((ticket) => (
-        <tr key={ticket.id}>
-            <td><a href={`/ticket/${ticket.id}`} className="ticket-link">{ticket.id}</a></td>
-            <td>{ticket.subject}</td>
-            <td>{ticket.category}</td>
-            <td>{ticket.date}</td>
-            <td>
-                <select className="assign-select" defaultValue={ticket.priority}>
-                    <option value="">-- Pilih --</option>
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
-                </select>
-            </td>
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate('/login');
+    };
 
-            {/* KOLOM TUGASKAN KE (SEKARANG DI KIRI AKSI) */}
-            <td>
-                <select className="assign-select">
-                    <option value="">-- Pilih --</option>
-                    <option value="tech1">Teknisi A</option>
-                    <option value="tech2">Teknisi B</option>
-                </select>
-            </td>
+    const filteredTickets = tickets.filter(t => 
+        (t.title || t.subject || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+        (t.id && t.id.toString().includes(searchQuery))
+    );
 
-            {/* KOLOM AKSI (SEKARANG DI PALING KANAN) */}
-            <td>
-                <div className="action-buttons">
-                    <button className="btn-action btn-approve"><FaCheck /></button>
-                    <button className="btn-action btn-reject"><FaTimes /></button>
+    if (loading) return <div style={{textAlign: 'center', marginTop: '50px', color: 'white'}}>Memuat Data Tiket...</div>;
+
+    return (
+        <div className="dashboard-container">
+            <aside className="sidebar">
+                <ul className="sidebar-menu">
+                    <Link to="/dashboard" style={{textDecoration: 'none'}}>
+                        <li className="sidebar-item"><span className="sidebar-icon"><FaThLarge /></span>Dashboard</li>
+                    </Link>
+                    <Link to="/ticket-approval" style={{textDecoration: 'none'}}>
+                        <li className="sidebar-item active"><span className="sidebar-icon"><FaTicketAlt /></span>Persetujuan Tiket</li>
+                    </Link>
+                    <Link to="/my-ticket" style={{textDecoration: 'none'}}>
+                        <li className="sidebar-item"><span className="sidebar-icon"><FaTicketAlt /></span>Tiket Saya</li>
+                    </Link>
+                </ul>
+            </aside>
+
+            <div className="main-content">
+                <header className="top-header">
+                    <div className="header-title">Helpdesk & Ticketing System FTI</div>
+                    <div className="header-icons">
+                        <span style={{fontSize: '0.8rem', marginRight: '10px'}}>{userRole}: {userName}</span>
+                        <FaBell />
+                        <Link to="/profile" style={{color: 'white'}}><FaUser /></Link>
+                        <button onClick={handleLogout} style={{background: 'none', border: 'none', color: 'white', cursor: 'pointer'}}><FaSignOutAlt /></button>
+                    </div>
+                </header>
+
+                <div className="content-padding">
+                    <h2 className="page-title">Monitoring Persetujuan Tiket</h2>
+                    
+                    <div className="table-controls">
+                        <div className="search-box">
+                            <input 
+                                type="text" 
+                                placeholder="Cari tiket..." 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                            <FaSearch className="search-icon"/>
+                        </div>
+                    </div>
+
+                    <div className="table-responsive">
+                        <table className="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>No. Tiket</th>
+                                    <th>Subjek</th>
+                                    <th>Tanggal</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredTickets.length > 0 ? filteredTickets.map((ticket) => (
+                                    <tr key={ticket.id}>
+                                        <td>#{ticket.id}</td>
+                                        <td>{ticket.title || ticket.subject}</td>
+                                        <td>{ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString('id-ID') : '-'}</td>
+                                        <td>
+                                            <div className="action-buttons">
+                                                <button onClick={() => handleApprove(ticket.id)} className="btn-approve"><FaCheck /></button>
+                                                <button className="btn-reject"><FaTimes /></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )) : (
+                                    <tr><td colSpan="4" style={{textAlign: 'center', padding: '20px'}}>Tidak ada antrean tiket saat ini.</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </td>
-        </tr>
-    ))}
-</tbody>
-
-            </table>
-          </div>
-
-          {/* FOOTER TABEL (Pagination) */}
-          <div className="table-footer">
-            <p>Menampilkan 1 hingga 5 dari 5 entri</p>
-            <div className="pagination">
-                <span>&laquo;</span>
-                <span className="active">1</span>
-                <span>&raquo;</span>
             </div>
-          </div>
-
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default TicketApproval;

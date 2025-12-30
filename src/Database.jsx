@@ -1,116 +1,189 @@
 // File: src/Database.jsx
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import API from './api/api'; 
 import './Dashboard.css'; 
 import './Database.css';  
 import { FaThLarge, FaDatabase, FaCog, FaHistory, FaBell, FaUser, FaSignOutAlt, FaSearch, FaEdit, FaTrash } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 
 const Database = () => {
-  // 1. Cek Peran (Default ke Admin untuk halaman ini)
-  const [userRole, setUserRole] = useState(localStorage.getItem('simulatedRole') || 'admin');
-  
-  // 2. State untuk Tab Aktif (Technical dihapus, default ke User)
+  const navigate = useNavigate();
+  const [userName, setUserName] = useState('');
+  const [users, setUsers] = useState([]); 
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('user'); 
-
-  // 3. State untuk Modal Tambah Data
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newData, setNewData] = useState({ name: '', dept: '', speciality: '' });
+  const [newData, setNewData] = useState({ name: '', email: '', password: '' });
 
-  const handleRoleChange = (e) => {
-      const newRole = e.target.value;
-      setUserRole(newRole);
-      localStorage.setItem('simulatedRole', newRole);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState({ id: '', name: '', email: '', role: '' });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const profileRes = await API.get('/api/auth/me');
+        if (profileRes.data.role !== 'ADMIN') {
+          navigate('/dashboard');
+          return;
+        }
+        setUserName(profileRes.data.name);
+        refreshTable();
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        navigate('/');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [navigate]);
+
+  const refreshTable = async () => {
+    try {
+      const usersRes = await API.get('/api/users');
+      setUsers(usersRes.data);
+    } catch (err) {
+      console.error("Gagal refresh table", err);
+    }
   };
-
-  // --- DATA DUMMY DISESUAIKAN ---
-  const dataOperation = [
-    { id: 'OPS001', name: 'Budi', dept: 'IT Ops', speciality: 'Server Admin' },
-    { id: 'OPS002', name: 'Siti', dept: 'IT Ops', speciality: 'Network Engineer' },
-  ];
-
-  const dataUser = [
-    { id: 'USR001', name: 'Jawir', dept: 'Teknik Informatika', speciality: 'Mahasiswa' },
-    { id: 'USR002', name: 'Citra', dept: 'Sistem Informasi', speciality: 'Dosen' },
-  ];
 
   const getCurrentData = () => {
-    // Technical Support dihapus dari logika
-    if (activeTab === 'operation') return dataOperation;
-    return dataUser;
+    if (activeTab === 'operation') return users.filter(u => u.role === 'OPERATIONAL');
+    return users.filter(u => u.role === 'USER');
   };
 
-  const handleSave = () => {
-    console.log("Data baru yang akan disimpan:", newData);
-    setIsModalOpen(false);
-    setNewData({ name: '', dept: '', speciality: '' });
+  // --- FUNGSI SIMPAN DENGAN AUTO-CLOSE & AUTO-REFRESH ---
+  const handleSave = async () => {
+    if (!newData.name || !newData.email || !newData.password) {
+        return Swal.fire('Error', 'Semua field harus diisi!', 'warning');
+    }
+
+    // Tampilkan Loading
+    Swal.fire({
+      title: 'Memproses...',
+      text: 'Sedang mendaftarkan akun baru',
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    try {
+      // 1. Registrasi Akun
+      const registerRes = await API.post('/api/auth/register', {
+        name: newData.name,
+        email: newData.email,
+        password: newData.password
+      });
+
+      const newUserId = registerRes.data.user?.id || registerRes.data.id;
+
+      // 2. Jika di tab Operation, ubah role menjadi OPERATIONAL
+      if (activeTab === 'operation' && newUserId) {
+          await API.put(`/api/users/${newUserId}/role`, { role: 'OPERATIONAL' });
+      }
+
+      // --- LOGIN BERHASIL: TUTUP MODAL & NOTIFIKASI ---
+      setIsModalOpen(false); // Modal tertutup
+      setNewData({ name: '', email: '', password: '' }); // Form bersih
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: `Akun ${activeTab === 'user' ? 'User' : 'Operational Staff'} telah didaftarkan.`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+      
+      refreshTable(); // Refresh tabel otomatis
+
+    } catch (error) {
+      console.error("Detail Error:", error.response);
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: error.response?.data?.msg || 'Gagal registrasi. Pastikan email belum terdaftar.'
+      });
+    }
   };
 
-  const menus = {
-    admin: [
-      { name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
-      { name: 'Database', icon: <FaDatabase />, link: '/database' },
-      { name: 'Setting', icon: <FaCog />, link: '/admin-setting' },
-      { name: 'User Log History', icon: <FaHistory />, link: '/user-log' },
-    ]
+  const openEditModal = (user) => {
+    setEditingUser({ id: user.id, name: user.name, email: user.email, role: user.role });
+    setIsEditModalOpen(true);
   };
 
-  // Proteksi Halaman: Hanya Admin yang boleh masuk
-  if (userRole !== 'admin') {
-    return (
-      <div style={{padding: '50px', textAlign: 'center'}}>
-          <h1>Akses Ditolak</h1>
-          <p>Halaman Database hanya untuk Admin.</p>
-          <Link to="/dashboard">Kembali ke Dashboard</Link>
-          <div style={{marginTop: '20px'}}>
-              <select onChange={handleRoleChange} value={userRole}>
-                  <option value="admin">Admin</option>
-                  <option value="user">User</option>
-                  <option value="operation">Operation Team</option>
-              </select>
-          </div>
-      </div>
-    );
-  }
+  const handleUpdateUser = async () => {
+    try {
+      await API.put(`/api/users/${editingUser.id}`, {
+        name: editingUser.name,
+        email: editingUser.email,
+        role: editingUser.role
+      });
+      
+      setIsEditModalOpen(false);
+      Swal.fire({ icon: 'success', title: 'Terupdate!', timer: 1500, showConfirmButton: false });
+      refreshTable();
+    } catch (error) {
+      Swal.fire('Gagal', 'Gagal memperbarui data.', 'error');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const confirm = await Swal.fire({
+      title: 'Hapus User?',
+      text: "Data akan dihapus permanen!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Ya, Hapus!'
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        await API.delete(`/api/users/${id}`);
+        refreshTable();
+        Swal.fire('Terhapus!', 'User berhasil dihapus.', 'success');
+      } catch (error) {
+        Swal.fire('Gagal', 'Tidak dapat menghapus user.', 'error');
+      }
+    }
+  };
+
+  if (loading) return <div style={{textAlign: 'center', marginTop: '50px', color: 'white'}}>Loading Database...</div>;
 
   return (
     <div className="dashboard-container">
-      {/* SIDEBAR */}
       <aside className="sidebar">
         <ul className="sidebar-menu">
-          {menus.admin.map((item, index) => (
+          {[{ name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
+            { name: 'Database', icon: <FaDatabase />, link: '/database' },
+            { name: 'Setting', icon: <FaCog />, link: '/admin-setting' },
+            { name: 'User Log History', icon: <FaHistory />, link: '/user-log' }
+          ].map((item, index) => (
             <Link to={item.link} key={index} style={{textDecoration: 'none'}}>
                 <li className={`sidebar-item ${item.name === 'Database' ? 'active' : ''}`}>
-                <span className="sidebar-icon">{item.icon}</span>
-                {item.name}
+                  <span className="sidebar-icon">{item.icon}</span>
+                  {item.name}
                 </li>
             </Link>
           ))}
         </ul>
-        <div style={{padding: '20px', marginTop: 'auto', fontSize: '0.8em'}}>
-            <p>Simulasi Login Sebagai:</p>
-            <select onChange={handleRoleChange} value={userRole} style={{width: '100%', padding: '5px'}}>
-                <option value="admin">Admin</option>
-                <option value="user">User</option>
-                <option value="operation">Operation Team</option>
-            </select>
-        </div>
       </aside>
 
-      {/* MAIN CONTENT */}
       <div className="main-content">
         <header className="top-header">
           <div className="header-title">Helpdesk & Ticketing System FTI</div>
           <div className="header-icons">
+            <span style={{fontSize: '0.8rem', marginRight: '10px'}}>Admin: {userName}</span>
             <FaBell />
             <Link to="/profile" style={{color: 'white', display: 'flex', alignItems: 'center'}}><FaUser /></Link>
-            <Link to="/" style={{color: 'white'}}><FaSignOutAlt /></Link>
+            <button onClick={() => { localStorage.clear(); navigate('/'); }} style={{background: 'none', border: 'none', color: 'white', cursor: 'pointer'}}><FaSignOutAlt /></button>
           </div>
         </header>
 
         <div className="content-padding">
           <h2 className="page-title">Database Management</h2>
 
-          {/* TABS NAVIGATION (Technical Dihilangkan) */}
           <div className="db-tabs">
             <div className={`db-tab-item ${activeTab === 'user' ? 'active' : ''}`} onClick={() => setActiveTab('user')}>End Users</div>
             <div className={`db-tab-item ${activeTab === 'operation' ? 'active' : ''}`} onClick={() => setActiveTab('operation')}>Operation Team (Staff)</div>
@@ -120,17 +193,9 @@ const Database = () => {
              <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
                 <div className="search-box" style={{background: '#ddd', padding: '8px 15px', borderRadius: '5px', display: 'flex', alignItems: 'center', width: '250px'}}>
                     <FaSearch color="#666" />
-                    <input type="text" placeholder="Search data..." style={{border:'none', background:'transparent', outline:'none', marginLeft:'10px', width:'100%'}} />
+                    <input type="text" placeholder="Cari nama..." style={{border:'none', background:'transparent', outline:'none', marginLeft:'10px', width:'100%'}} />
                 </div>
-                <button 
-                  onClick={() => setIsModalOpen(true)}
-                  style={{ backgroundColor: '#00aaff', color: 'white', border: 'none', padding: '8px 20px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
-                >
-                  Tambah Data
-                </button>
-             </div>
-             <div>
-                  Show: <select style={{padding: '5px'}}><option>10</option></select> Entries
+                <button onClick={() => setIsModalOpen(true)} style={{ backgroundColor: '#00aaff', color: 'white', border: 'none', padding: '8px 20px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>Tambah Data</button>
              </div>
           </div>
 
@@ -139,25 +204,23 @@ const Database = () => {
                 <thead>
                     <tr>
                         <th className="checkbox-cell">No.</th>
-                        <th>ID</th>
+                        <th>Email</th>
                         <th>Name</th>
-                        <th>Department</th>
-                        <th>Category/Role</th>
+                        <th>Role</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {getCurrentData().map((item, idx) => (
-                        <tr key={idx}>
+                        <tr key={item.id}>
                             <td className="checkbox-cell" style={{ textAlign: 'center' }}>{idx + 1}</td>
-                            <td>{item.id}</td>
+                            <td>{item.email}</td>
                             <td>{item.name}</td>
-                            <td>{item.dept}</td>
-                            <td>{item.speciality}</td>
+                            <td><span className={`badge ${item.role}`}>{item.role}</span></td>
                             <td>
                                 <div className="action-icons">
-                                    <FaEdit title="Edit" style={{ cursor: 'pointer', marginRight: '10px', color: '#f0ad4e' }} />
-                                    <FaTrash title="Delete" style={{ cursor: 'pointer', color: '#d9534f' }} />
+                                    <FaEdit onClick={() => openEditModal(item)} title="Edit" style={{ cursor: 'pointer', marginRight: '10px', color: '#f0ad4e' }} />
+                                    <FaTrash onClick={() => handleDelete(item.id)} title="Delete" style={{ cursor: 'pointer', color: '#d9534f' }} />
                                 </div>
                             </td>
                         </tr>
@@ -165,53 +228,50 @@ const Database = () => {
                 </tbody>
             </table>
           </div>
-
-          <div style={{marginTop: '15px', fontSize: '0.9rem', display: 'flex', justifyContent: 'space-between'}}>
-             <span>Showing {getCurrentData().length} entries</span>
-             <div style={{cursor: 'pointer'}}> {'<<'} 1 {'>>'} </div>
-          </div>
         </div>
       </div>
 
       {/* MODAL TAMBAH DATA */}
       {isModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
-          <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '10px', width: '400px' }}>
-            <h3 style={{ marginBottom: '20px' }}>Tambah Data {activeTab === 'user' ? 'User' : 'Staff'}</h3>
-            
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px' }}>Name</label>
-              <input 
-                type="text" 
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-                value={newData.name}
-                onChange={(e) => setNewData({...newData, name: e.target.value})}
-              />
+        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
+          <div className="modal-content" style={{ backgroundColor: 'white', padding: '30px', borderRadius: '10px', width: '400px' }}>
+            <h3 style={{ marginBottom: '20px', color: '#333' }}>Tambah {activeTab === 'user' ? 'User' : 'Staff'}</h3>
+            <div className="form-group" style={{marginBottom: '10px'}}>
+                <label style={{color: '#333'}}>Nama Lengkap</label>
+                <input type="text" style={{ width: '100%', padding: '8px' }} value={newData.name} onChange={(e) => setNewData({...newData, name: e.target.value})} />
             </div>
-
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px' }}>Department</label>
-              <input 
-                type="text" 
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-                value={newData.dept}
-                onChange={(e) => setNewData({...newData, dept: e.target.value})}
-              />
+            <div className="form-group" style={{marginBottom: '10px'}}>
+                <label style={{color: '#333'}}>Email Address</label>
+                <input type="email" style={{ width: '100%', padding: '8px' }} value={newData.email} onChange={(e) => setNewData({...newData, email: e.target.value})} />
             </div>
-
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '5px' }}>{activeTab === 'user' ? 'Status' : 'Speciality'}</label>
-              <input 
-                type="text" 
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-                value={newData.speciality}
-                onChange={(e) => setNewData({...newData, speciality: e.target.value})}
-              />
+            <div className="form-group" style={{marginBottom: '20px'}}>
+                <label style={{color: '#333'}}>Password Akun</label>
+                <input type="password" style={{ width: '100%', padding: '8px' }} value={newData.password} onChange={(e) => setNewData({...newData, password: e.target.value})} />
             </div>
-
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <button onClick={() => setIsModalOpen(false)} style={{ padding: '8px 15px', cursor: 'pointer', border: '1px solid #ccc', borderRadius: '5px' }}>Batal</button>
-              <button onClick={handleSave} style={{ padding: '8px 15px', cursor: 'pointer', backgroundColor: '#00aaff', color: 'white', border: 'none', borderRadius: '5px' }}>Simpan</button>
+              <button onClick={() => setIsModalOpen(false)} style={{ padding: '8px 15px', cursor: 'pointer' }}>Batal</button>
+              <button onClick={handleSave} style={{ backgroundColor: '#00aaff', color: 'white', border: 'none', padding: '8px 15px', cursor: 'pointer', borderRadius: '5px' }}>Daftarkan</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL EDIT DATA */}
+      {isEditModalOpen && (
+        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
+          <div className="modal-content" style={{ backgroundColor: 'white', padding: '30px', borderRadius: '10px', width: '400px' }}>
+            <h3 style={{ marginBottom: '20px', color: '#333' }}>Edit Data User</h3>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ color: '#333', fontSize: '0.9rem' }}>Nama Lengkap</label>
+              <input type="text" style={{ width: '100%', padding: '8px', marginTop: '5px' }} value={editingUser.name} onChange={(e) => setEditingUser({...editingUser, name: e.target.value})} />
+            </div>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ color: '#333', fontSize: '0.9rem' }}>Email</label>
+              <input type="email" style={{ width: '100%', padding: '8px', marginTop: '5px' }} value={editingUser.email} onChange={(e) => setEditingUser({...editingUser, email: e.target.value})} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button onClick={() => setIsEditModalOpen(false)} style={{ padding: '8px 15px', cursor: 'pointer' }}>Batal</button>
+              <button onClick={handleUpdateUser} style={{ backgroundColor: '#f0ad4e', color: 'white', border: 'none', padding: '8px 15px', cursor: 'pointer', borderRadius: '5px' }}>Update Data</button>
             </div>
           </div>
         </div>

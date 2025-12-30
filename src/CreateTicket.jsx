@@ -1,6 +1,6 @@
 // File: src/CreateTicket.jsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import API from './api/api';
 import './Dashboard.css'; 
 import './CreateTicket.css'; 
@@ -8,70 +8,103 @@ import { FaThLarge, FaTicketAlt, FaUser, FaBell, FaSignOutAlt, FaPaperclip } fro
 import Swal from 'sweetalert2';
 
 const CreateTicket = () => {
-  const [userRole, setUserRole] = useState(localStorage.getItem('simulatedRole') || 'user');
+  const navigate = useNavigate();
+  const [userRole, setUserRole] = useState('');
+  const [userName, setUserName] = useState('');
   const [categories, setCategories] = useState([]); 
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [priority, setPriority] = useState('Low');
+  const [loading, setLoading] = useState(true);
 
-  // Ambil Kategori dari API
+  // 1. Verifikasi Akses & Ambil Kategori Asli
   useEffect(() => {
-    const fetchCategories = async () => {
+    const initPage = async () => {
       try {
-        const response = await API.get('/api/categories');
-        setCategories(response.data);
+        // Ambil profil untuk memastikan yang akses adalah USER
+        const profileRes = await API.get('/api/auth/me');
+        setUserRole(profileRes.data.role);
+        setUserName(profileRes.data.name);
+
+        // Hanya USER yang boleh buat tiket
+        if (profileRes.data.role !== 'USER') {
+          navigate('/dashboard');
+          return;
+        }
+
+        // Ambil data kategori dari backend
+        const catRes = await API.get('/api/categories');
+        setCategories(catRes.data);
       } catch (error) {
-        console.error("Gagal mengambil kategori", error);
+        console.error("Gagal inisialisasi halaman", error);
+        navigate('/');
+      } finally {
+        setLoading(false);
       }
     };
-    fetchCategories();
-  }, []);
+    initPage();
+  }, [navigate]);
 
+  // 2. Fungsi Kirim Tiket Nyata ke Backend
   const handleSendTicket = async () => {
     if (!subject || !selectedCategory || !description) {
-      return Swal.fire('Oops!', 'Harap isi semua kolom yang wajib.', 'warning');
+      return Swal.fire('Oops!', 'Harap isi semua kolom wajib.', 'warning');
     }
 
+    Swal.fire({
+      title: 'Mengirim Tiket...',
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
     try {
-      // Logika POST ke API bisa diletakkan di sini
+      // Sesuai dokumentasi backend temanmu (asumsi endpoint /api/tickets)
+      await API.post('/api/tickets', {
+        title: subject,
+        description: description,
+        categoryId: selectedCategory,
+        priority: priority
+      });
+
       Swal.fire({
         title: 'Berhasil!',
-        text: 'Tiket Anda telah terkirim.',
+        text: 'Tiket Anda telah terdaftar di sistem.',
         icon: 'success',
         confirmButtonColor: '#00aaff'
       });
       
+      // Reset Form
       setSubject('');
       setDescription('');
       setSelectedCategory('');
+      setPriority('Low');
+
+      // Opsional: Pindah ke halaman daftar tiket
+      // navigate('/my-ticket');
+
     } catch (error) {
-      Swal.fire('Gagal', 'Terjadi kesalahan saat mengirim tiket.', 'error');
+      console.error("Gagal mengirim tiket:", error);
+      Swal.fire('Gagal', error.response?.data?.msg || 'Terjadi kesalahan saat mengirim tiket.', 'error');
     }
   };
 
-  const menus = {
-    user: [
-      { name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
-      { name: 'Buat Tiket', icon: <FaTicketAlt />, link: '/create-ticket' },
-      { name: 'Tiket Saya', icon: <FaTicketAlt />, link: '/my-ticket' },
-    ]
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/');
   };
 
-  if (userRole !== 'user') {
-    return (
-      <div style={{padding: '50px', textAlign: 'center'}}>
-          <h1>Akses Ditolak</h1>
-          <p>Halaman Buat Tiket hanya untuk User.</p>
-          <Link to="/dashboard">Kembali ke Dashboard</Link>
-      </div>
-    );
-  }
+  if (loading) return <div style={{textAlign: 'center', marginTop: '50px', color: 'white'}}>Memproses...</div>;
 
   return (
     <div className="dashboard-container">
       <aside className="sidebar">
         <ul className="sidebar-menu">
-          {menus.user.map((item, index) => (
+          {[
+            { name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
+            { name: 'Buat Tiket', icon: <FaTicketAlt />, link: '/create-ticket' },
+            { name: 'Tiket Saya', icon: <FaTicketAlt />, link: '/my-ticket' },
+          ].map((item, index) => (
             <Link to={item.link} key={index} style={{textDecoration: 'none'}}>
                 <li className={`sidebar-item ${item.name === 'Buat Tiket' ? 'active' : ''}`}>
                 <span className="sidebar-icon">{item.icon}</span>
@@ -80,27 +113,18 @@ const CreateTicket = () => {
             </Link>
           ))}
         </ul>
-        
-        <div style={{padding: '20px', marginTop: 'auto', fontSize: '0.8em'}}>
-            <p>Simulasi Login Sebagai:</p>
-            <select onChange={(e) => {
-                setUserRole(e.target.value);
-                localStorage.setItem('simulatedRole', e.target.value);
-            }} value={userRole} style={{width: '100%', padding: '5px'}}>
-                <option value="admin">Admin</option>
-                <option value="user">User</option>
-                <option value="operation">Operation Team</option>
-            </select>
-        </div>
       </aside>
 
       <div className="main-content">
         <header className="top-header">
           <div className="header-title">Helpdesk & Ticketing System FTI</div>
           <div className="header-icons">
+            <span style={{fontSize: '0.8rem', marginRight: '10px'}}>Halo, {userName}</span>
             <FaBell />
             <Link to="/profile" style={{color: 'white', display: 'flex', alignItems: 'center'}}><FaUser /></Link>
-            <Link to="/" style={{color: 'white'}}><FaSignOutAlt /></Link>
+            <button onClick={handleLogout} style={{background: 'none', border: 'none', color: 'white', cursor: 'pointer'}}>
+                <FaSignOutAlt />
+            </button>
           </div>
         </header>
 
@@ -108,21 +132,18 @@ const CreateTicket = () => {
           <div className="create-ticket-container">
             <h2 className="form-header-title">Buat Tiket Baru</h2>
 
-            {/* ROW 1: Subject (Sekarang paling atas) */}
             <div className="form-group form-row-full">
-                <label>Subject:</label>
+                <label>Subject / Judul Kendala:</label>
                 <input 
                   type="text" 
                   className="input-field" 
                   value={subject} 
                   onChange={(e) => setSubject(e.target.value)}
-                  placeholder="Contoh: Kendala Login WiFi"
+                  placeholder="Contoh: Proyektor Kelas B302 Mati"
                 />
             </div>
 
-            {/* ROW 2: Main Split */}
             <div className="form-main-split">
-                {/* KIRI: Kategori & Prioritas */}
                 <div className="left-inputs">
                     <div className="form-group">
                         <label>Kategori:</label>
@@ -139,26 +160,29 @@ const CreateTicket = () => {
                     </div>
                     <div className="form-group">
                         <label>Prioritas:</label>
-                        <select className="input-field">
-                            <option>Low</option>
-                            <option>Medium</option>
-                            <option>High</option>
+                        <select 
+                          className="input-field" 
+                          value={priority} 
+                          onChange={(e) => setPriority(e.target.value)}
+                        >
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
                         </select>
                     </div>
                 </div>
 
-                {/* KANAN: Deskripsi */}
                 <div className="right-textarea">
                     <div className="form-group" style={{height: '100%'}}>
-                        <label>Deskripsi:</label>
+                        <label>Deskripsi Detail Kendala:</label>
                         <div style={{position: 'relative', height: '100%'}}>
                             <textarea 
                               className="textarea-field"
                               value={description}
                               onChange={(e) => setDescription(e.target.value)}
-                              placeholder="Jelaskan kendala Anda..."
+                              placeholder="Ceritakan kendala Anda secara lengkap..."
                             ></textarea>
-                            <div className="attachment-icon" title="Lampirkan File">
+                            <div className="attachment-icon" title="Lampirkan Gambar/File">
                                 <FaPaperclip />
                             </div>
                         </div>
@@ -166,7 +190,7 @@ const CreateTicket = () => {
                 </div>
             </div>
 
-            <button className="btn-submit-ticket" onClick={handleSendTicket}>Kirim</button>
+            <button className="btn-submit-ticket" onClick={handleSendTicket}>Kirim Laporan</button>
           </div>
         </div>
       </div>

@@ -1,26 +1,96 @@
 // File: src/Performance.jsx
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import API from './api/api';
 import './Dashboard.css';   
 import './Performance.css'; 
-import { FaThLarge, FaTicketAlt, FaChartBar, FaBell, FaSignOutAlt, FaStar, FaUser } from 'react-icons/fa';
+// PERBAIKAN: Menambahkan FaDatabase, FaHistory, FaCog, dan FaChartBar ke dalam import
+import { 
+  FaThLarge, 
+  FaTicketAlt, 
+  FaChartBar, 
+  FaBell, 
+  FaSignOutAlt, 
+  FaStar, 
+  FaUser, 
+  FaDatabase, 
+  FaHistory, 
+  FaCog 
+} from 'react-icons/fa';
 
 const Performance = () => {
-  // --- AMBIL DATA DARI MEMORI BROWSER ---
-  // Role 'technical' dihapus, default disesuaikan ke 'operation'
-  const [userRole, setUserRole] = useState(localStorage.getItem('simulatedRole') || 'operation');
+  const navigate = useNavigate();
+  const [userRole, setUserRole] = useState('');
+  const [userName, setUserName] = useState('');
+  const [loading, setLoading] = useState(true);
+  
+  // State untuk data statistik asli
+  const [perfStats, setPerfStats] = useState({
+    total: 0,
+    resolved: 0,
+    onHold: 0,
+    inProgress: 0,
+    rating: 0
+  });
 
-  const handleRoleChange = (e) => {
-      const newRole = e.target.value;
-      setUserRole(newRole);
-      localStorage.setItem('simulatedRole', newRole);
+  // --- 1. VERIFIKASI AKSES & AMBIL DATA KINERJA ---
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Ambil profil untuk verifikasi role
+        const profileRes = await API.get('/api/auth/me');
+        const role = profileRes.data.role;
+        setUserRole(role);
+        setUserName(profileRes.data.name);
+
+        // Proteksi: Hanya OPERATIONAL dan ADMIN yang boleh melihat analisis kinerja
+        if (role === 'USER') {
+          navigate('/dashboard');
+          return;
+        }
+
+        // Ambil statistik kinerja staff dari backend
+        try {
+            const statsRes = await API.get('/api/tickets/performance');
+            // Pastikan statsRes.data ada sebelum set state
+            if (statsRes.data) {
+                setPerfStats(statsRes.data);
+            }
+        } catch (err) {
+            // Menangani Error 500 dari screenshot Anda agar aplikasi tetap jalan
+            console.warn("Endpoint performance belum tersedia atau server error (500), menggunakan data default.");
+        }
+
+      } catch (error) {
+        console.error("Gagal memuat data kinerja:", error);
+        // Jika token tidak valid, baru arahkan ke login
+        if (error.response && error.response.status === 401) {
+            navigate('/login');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/login');
   };
 
-  // --- MENU SIDEBAR (Sesuai dokumentasi backend: ADMIN, OPERATIONAL, USER) ---
+  if (loading) return <div style={{textAlign: 'center', marginTop: '50px', color: 'white'}}>Menganalisis Data Kinerja...</div>;
+
+  // --- MENU SIDEBAR DINAMIS ---
   const menus = {
-    admin: [], 
-    user: [], 
-    operation: [
+    ADMIN: [
+      { name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
+      { name: 'Database', icon: <FaDatabase />, link: '/database' },
+      { name: 'Setting', icon: <FaCog />, link: '/admin-setting' },
+      { name: 'User Log History', icon: <FaHistory />, link: '/user-log' },
+    ],
+    OPERATIONAL: [
       { name: 'Dashboard', icon: <FaThLarge />, link: '/dashboard' },
       { name: 'Tiket Disetujui', icon: <FaTicketAlt />, link: '/ticket-approval' },
       { name: 'Tiket Saya', icon: <FaTicketAlt />, link: '/my-ticket' },
@@ -28,61 +98,32 @@ const Performance = () => {
     ]
   };
 
-  // --- LOGIKA AKSES DITOLAK (Technical dihapus) ---
-  if (userRole === 'admin' || userRole === 'user') {
-    return (
-        <div style={{padding: '50px', textAlign: 'center', fontFamily: 'sans-serif'}}>
-            <h1>Akses Ditolak</h1>
-            <p>Halaman Kinerja hanya dapat diakses oleh Operation Team (OPERATIONAL).</p>
-            <Link to="/dashboard" style={{color: 'blue', textDecoration: 'underline'}}>Kembali ke Dashboard</Link>
-            
-            <div style={{marginTop: '30px', border: '1px solid #ccc', padding: '10px', display: 'inline-block'}}>
-                <p style={{fontSize: '0.8rem'}}>Ganti Role untuk simulasi:</p>
-                <select onChange={handleRoleChange} value={userRole}>
-                    <option value="admin">Admin (Blokir)</option>
-                    <option value="user">User (Blokir)</option>
-                    <option value="operation">Operation Team</option>
-                </select>
-            </div>
-        </div>
-    );
-  }
-
-  // Data Dummy disesuaikan
-  const myName = 'Staff Operasional FTI';
-  const teamList = [1, 2, 3, 4]; 
-
   return (
     <div className="dashboard-container">
       <aside className="sidebar">
         <ul className="sidebar-menu">
-          {menus[userRole]?.map((item, index) => (
+          {/* Menggunakan operator optional chaining ?. untuk keamanan */}
+          {(menus[userRole] || []).map((item, index) => (
             <Link to={item.link} key={index} style={{textDecoration: 'none'}}>
                 <li className={`sidebar-item ${item.name === 'Kinerja' ? 'active' : ''}`}>
-                <span className="sidebar-icon">{item.icon}</span>
-                {item.name}
+                  <span className="sidebar-icon">{item.icon}</span>
+                  {item.name}
                 </li>
             </Link>
           ))}
         </ul>
-
-        <div style={{padding: '20px', marginTop: 'auto', fontSize: '0.8em'}}>
-            <p>Simulasi Login Sebagai:</p>
-            <select onChange={handleRoleChange} value={userRole} style={{width: '100%', padding: '5px'}}>
-                <option value="admin">Admin</option>
-                <option value="user">User</option>
-                <option value="operation">Operation Team</option>
-            </select>
-        </div>
       </aside>
 
       <div className="main-content">
         <header className="top-header">
           <div className="header-title">Helpdesk & Ticketing System FTI</div>
           <div className="header-icons">
+            <span style={{fontSize: '0.8rem', marginRight: '10px'}}>Halo, {userName}</span>
             <FaBell />
             <Link to="/profile" style={{color: 'white', display: 'flex', alignItems: 'center'}}><FaUser /></Link>
-            <Link to="/" style={{color: 'white'}}><FaSignOutAlt /></Link>
+            <button onClick={handleLogout} style={{background: 'none', border: 'none', color: 'white', cursor: 'pointer'}}>
+                <FaSignOutAlt />
+            </button>
           </div>
         </header>
 
@@ -95,10 +136,10 @@ const Performance = () => {
                 <div className="perf-profile-card">
                     <div className="perf-avatar-large"><FaUser /></div>
                     <div style={{flex: 1}}>
-                        <div className="perf-name">{myName}</div>
+                        <div className="perf-name">{userName}</div>
                         <div className="perf-info-box">
                             <div className="perf-detail-text">
-                                ID Staff: XL00045<br/>
+                                Role: {userRole}<br/>
                                 Departemen: Operation Team (FTI)
                             </div>
                         </div>
@@ -108,24 +149,26 @@ const Performance = () => {
                 <div className="perf-stats-card">
                     <div className="stats-row stats-total">
                         <span>Total tiket yang ditangani</span>
-                        <span>15</span>
+                        <span>{perfStats.total || 0}</span>
                     </div>
                     <div className="stats-row">
                         <span>Tiket Selesai (Resolved)</span>
-                        <span>10</span>
+                        <span>{perfStats.resolved || 0}</span>
                     </div>
                     <div className="stats-row">
                         <span>Tiket Tertunda (On Hold)</span>
-                        <span>2</span>
+                        <span>{perfStats.onHold || 0}</span>
                     </div>
                     <div className="stats-row">
                         <span>Sedang Diproses (In Progress)</span>
-                        <span>3</span>
+                        <span>{perfStats.inProgress || 0}</span>
                     </div>
                     <div className="stats-row" style={{marginTop: '15px', alignItems: 'center'}}>
                         <span>Rata-rata Penilaian</span>
                         <div className="rating-stars">
-                            {[1,2,3,4,5].map(i => <FaStar key={i} color="#FFC107" />)}
+                            {[1,2,3,4,5].map(i => (
+                                <FaStar key={i} color={i <= (perfStats.rating || 5) ? "#FFC107" : "#E4E5E9"} />
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -133,7 +176,7 @@ const Performance = () => {
 
             <div className="perf-right-column">
                 <h3 style={{marginBottom: '15px', color: '#333'}}>Rekan Kerja Tim Operasi</h3>
-                {teamList.map((val) => (
+                {[1, 2, 3].map((val) => (
                     <div className="team-card" key={val}>
                         <div className="team-avatar-small"><FaUser /></div>
                         <div className="team-info">
